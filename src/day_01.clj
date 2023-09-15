@@ -1,4 +1,4 @@
-(ns day-00)
+(ns day-01)
 
 (defn parse [l] (Long/parseLong l))
 
