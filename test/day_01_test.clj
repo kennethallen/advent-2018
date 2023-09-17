@@ -1,6 +1,6 @@
 (ns day-01-test
   (:require [clojure.test :refer :all]
-            [day-01 :refer :all]))
+            [day-01 :refer [part-1 part-2]]))
 
 (deftest test-part-1
   (is (= 3 (part-1 ["+1" "+1" "+1"])))
