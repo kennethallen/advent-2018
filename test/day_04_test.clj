@@ -1,6 +1,6 @@
 (ns day-04-test
   (:require [clojure.test :refer :all]
-            [day-04 :refer [part-1]]))
+            [day-04 :refer [part-1 part-2]]))
 
 (def sample [
   "[1518-11-05 00:03] Guard #99 begins shift"
@@ -25,3 +25,8 @@
   (is (= 240 (part-1 sample)))
   (with-open [rdr (clojure.java.io/reader "test/input/04.txt")]
     (is (= 71748 (part-1 (line-seq rdr))))))
+
+(deftest test-part-2
+  (is (= (* 99 45) (part-2 sample)))
+  (with-open [rdr (clojure.java.io/reader "test/input/04.txt")]
+    (is (= 106850 (part-2 (line-seq rdr))))))

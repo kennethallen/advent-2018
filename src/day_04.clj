@@ -38,3 +38,10 @@
         guard (key (apply max-key #(reduce + (vals (val %))) gms))
         minute (key (apply max-key val (gms guard)))]
     (* guard minute)))
+
+(defn part-2 [lines]
+  (let [records (sort-by :ts (map parse lines))
+        gms (guard-minute-sleeps records)
+        gms' (into {} (mapcat (fn [[g m-s]] (map (fn [[m s]] [[g m] s]) m-s)) gms))
+        [guard minute] (key (apply max-key val gms'))]
+    (* guard minute)))
