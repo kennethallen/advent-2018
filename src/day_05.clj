@@ -11,10 +11,17 @@
     new))
 (defn collapse [old] (collapse' old 0 []))
 
-(defn part-1' [polymer]
+(defn max-collapse [polymer]
   (let [new (collapse polymer)]
     (if (= (count polymer) (count new))
-      (count new)
+      new
       (recur new))))
+(defn part-1 [polymer] (count (max-collapse (apply vector polymer))))
 
-(defn part-1 [polymer] (part-1' (apply vector polymer)))
+(defn part-2 [polymer]
+  (let [base (max-collapse (apply vector polymer))
+        units (into #{} (map #(Character/toUpperCase %) base))]
+    (apply min (map
+      (fn [u]
+        (count (max-collapse (apply vector (filter #(not= u (Character/toUpperCase %)) base)))))
+      units))))
