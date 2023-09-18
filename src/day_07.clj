@@ -1,21 +1,48 @@
 (ns day-07
-  (:require [util :refer [counter]]
-            [clojure.math.combinatorics :refer [cartesian-product]]))
+  (:require [util :refer [materialize]]
+            [clojure.data.priority-map :refer [priority-map]]))
 
 (defn parse [l]
   (let [[_ s0 s1] (re-matches #"Step (.) must be finished before step (.) can begin." l)]
     [(.charAt s0 0) (.charAt s1 0)]))
 
-(defn part-1' [deps order rem]
-  (if (empty? rem)
-    order
-    (let [next (first (filter #(empty? (deps %)) rem))
-          rem (disj rem next)]
-      (recur
-        #(disj (deps %) next)
-        (conj order next)
-        rem))))
-(defn part-1 [lines]
+(defn advance [deps workers done in-prog waiting t get-time]
+  (if (and (empty? waiting) (empty? in-prog))
+    [done t]
+    (let [[next-done next-when] (peek in-prog)]
+      (if (and next-done (= next-when t))
+        (recur
+          (materialize #(disj (deps %) next-done) waiting)
+          (inc workers)
+          (conj done next-done)
+          (pop in-prog)
+          waiting
+          t
+          get-time)
+        (let [nexts (take workers (sort (filter #(empty? (deps %)) waiting)))
+              in-prog' (into in-prog (map (fn [step] [step (+ t (get-time step))]) nexts))]
+          (recur
+            deps
+            (- workers (count nexts))
+            done
+            in-prog'
+            (apply disj waiting nexts)
+            (second (first in-prog'))
+            get-time))))))
+
+(defn solve [lines workers get-time]
   (let [rules (map parse lines)
+        steps (set (mapcat identity rules))
         deps (reduce (fn [deps [blocker blocked]] (assoc deps blocked (conj (deps blocked #{}) blocker))) {} rules)]
-    (apply str (part-1' deps [] (set (mapcat identity rules))))))
+  (advance
+    deps
+    workers
+    []
+    (priority-map)
+    steps
+    0
+    #(get-time (inc (- (int %) (int \A)))))))
+
+(defn part-1 [lines] (apply str (first (solve lines 1 (fn [_] 1)))))
+
+(defn part-2 [lines workers base-time] (second (solve lines workers #(+ base-time %))))
