@@ -23,13 +23,14 @@
     (let [l (:r (slots cur))
           r (:r (slots l))
           slots (-> slots
-            (assoc new (Slot. l r))
+            (into (repeat (- new (count slots)) nil))
+            (conj (Slot. l r))
             (assoc-in [l :r] new)
             (assoc-in [r :l] new))]
       [players scores slots new])))
 
 (defn solve [players last-marble]
-  (let [[_ scores _ _] (reduce step [players {} {0 (Slot. 0 0)} 0] (range 1 (inc last-marble)))]
+  (let [[_ scores _ _] (reduce step [players {} [(Slot. 0 0)] 0] (range 1 (inc last-marble)))]
     (apply max (vals scores))))
 
 (defn part-1 [line]

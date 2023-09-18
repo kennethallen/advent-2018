@@ -4,4 +4,5 @@
 
  :aliases 
  {:test {:main-opts ["-m" "kaocha.runner"]
-         :extra-deps {lambdaisland/kaocha {:mvn/version "1.86.1355"}}}}}
+         :extra-deps {lambdaisland/kaocha {:mvn/version "1.86.1355"}}}
+  :profile {:extra-deps {com.clojure-goes-fast/clj-async-profiler {:mvn/version "1.0.5"}}}}}
