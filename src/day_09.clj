@@ -17,7 +17,7 @@
             (assoc-in [remove-l :r] remove-r)
             (assoc-in [remove-r :l] remove-l))]
       [players
-       (assoc scores player (+ (scores player 0) remove new))
+       (update scores player #(+ (or % 0) remove new))
        slots
        remove-r])
     (let [l (:r (slots cur))

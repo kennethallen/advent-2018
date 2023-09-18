@@ -33,7 +33,7 @@
 (defn solve [lines workers get-time]
   (let [rules (map parse lines)
         steps (set (mapcat identity rules))
-        deps (reduce (fn [deps [blocker blocked]] (assoc deps blocked (conj (deps blocked #{}) blocker))) {} rules)]
+        deps (reduce (fn [deps [blocker blocked]] (update deps blocked #(conj (or % #{}) blocker))) {} rules)]
   (advance
     deps
     workers

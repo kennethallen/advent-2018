@@ -2,7 +2,7 @@
 
 (defn counter [seq]
   (reduce
-    (fn [counter char] (assoc counter char (inc (counter char 0))))
+    (fn [counter char] (update counter char #(inc (or % 0))))
     {}
     seq))
 

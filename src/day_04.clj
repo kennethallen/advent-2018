@@ -21,10 +21,7 @@
           (= (:event rec) :sleep) [guard (.getMinutes (:ts rec)) data]
           (= (:event rec) :wake) [guard nil
             (reduce
-              (fn [data minute]
-                (assoc data guard
-                  (assoc (data guard {}) minute
-                    (inc ((data guard {}) minute 0)))))
+              (fn [data minute] (update-in data [guard minute] #(inc (or % 0))))
               data
               (range asleep-since (.getMinutes (:ts rec))))]
           :else [(:event rec) nil data]))
