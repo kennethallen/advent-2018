@@ -20,7 +20,7 @@
 
 (defn part-2 [polymer]
   (let [base (max-collapse (apply vector polymer))
-        units (into #{} (map #(Character/toUpperCase %) base))]
+        units (set (map #(Character/toUpperCase %) base))]
     (apply min (map
       (fn [u]
         (count (max-collapse (apply vector (filter #(not= u (Character/toUpperCase %)) base)))))
