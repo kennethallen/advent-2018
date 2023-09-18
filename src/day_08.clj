@@ -16,3 +16,12 @@
 (defn part-1 [line]
   (let [[root stream] (read-node (parse line))]
     (sum-metadata root)))
+
+(defn node-val [n]
+  (if (empty? (:children n))
+    (reduce + (:metadata n))
+    (reduce + (map (fn [i] (node-val (get (:children n) (dec i)))) (:metadata n)))))
+
+(defn part-2 [line]
+  (let [[root stream] (read-node (parse line))]
+    (node-val root)))
