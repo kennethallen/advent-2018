@@ -28,7 +28,15 @@
             (assoc-in [r :l] new))]
       [players scores slots new])))
 
-(defn part-1 [line]
-  (let [[players last-marble] (parse line)
-        [_ scores _ _] (reduce step [players {} {0 (Slot. 0 0)} 0] (range 1 (inc last-marble)))]
+(defn solve [players last-marble]
+  (let [[_ scores _ _] (reduce step [players {} {0 (Slot. 0 0)} 0] (range 1 (inc last-marble)))]
     (apply max (vals scores))))
+
+(defn part-1 [line]
+  (let [[players last-marble] (parse line)]
+    (solve players last-marble)))
+
+(defn part-2 [line]
+  (let [[players last-marble] (parse line)]
+    (solve players (* 100 last-marble))))
+ 
