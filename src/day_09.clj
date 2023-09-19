@@ -33,11 +33,37 @@
   (let [[_ scores _ _] (reduce step [players (into [] (repeat players 0)) [(Slot. 0 0)] 0] (range 1 (inc last-marble)))]
     (apply max scores)))
 
+(defn solve' [players last-marble]
+  (let [scores (long-array players)
+        ls (long-array (inc last-marble))
+        rs (long-array (inc last-marble))
+        cur (atom 0)]
+    (aset-long ls 0 0)
+    (aset-long rs 0 0)
+    (doseq [new (range 1 (inc last-marble))]
+      (if (zero? (mod new 23))
+        (let [player (mod new players)
+              rem (nth (iterate #(aget ls %) @cur) 7)
+              l (aget ls rem)
+              r (aget rs rem)]
+          (aset-long scores player (+ (aget scores player) new rem))
+          (aset-long ls r l)
+          (aset-long rs l r)
+          (reset! cur r))
+        (let [l (aget rs @cur)
+              r (aget rs l)]
+          (aset-long ls new l)
+          (aset-long rs new r)
+          (aset-long ls r new)
+          (aset-long rs l new)
+          (reset! cur new))))
+    (apply max scores)))
+
 (defn part-1 [line]
   (let [[players last-marble] (parse line)]
-    (solve players last-marble)))
+    (solve' players last-marble)))
 
 (defn part-2 [line]
   (let [[players last-marble] (parse line)]
-    (solve players (* 100 last-marble))))
+    (solve' players (* 100 last-marble))))
  
