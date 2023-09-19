@@ -17,7 +17,7 @@
             (assoc-in [remove-l :r] remove-r)
             (assoc-in [remove-r :l] remove-l))]
       [players
-       (update scores player #(+ (or % 0) remove new))
+       (update scores player #(+ % remove new))
        slots
        remove-r])
     (let [l (:r (slots cur))
@@ -30,8 +30,8 @@
       [players scores slots new])))
 
 (defn solve [players last-marble]
-  (let [[_ scores _ _] (reduce step [players {} [(Slot. 0 0)] 0] (range 1 (inc last-marble)))]
-    (apply max (vals scores))))
+  (let [[_ scores _ _] (reduce step [players (into [] (repeat players 0)) [(Slot. 0 0)] 0] (range 1 (inc last-marble)))]
+    (apply max scores)))
 
 (defn part-1 [line]
   (let [[players last-marble] (parse line)]
