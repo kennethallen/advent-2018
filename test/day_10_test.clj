@@ -1,6 +1,6 @@
 (ns day-10-test
   (:require [clojure.test :refer :all]
-            [day-10 :refer [part-1]]))
+            [day-10 :refer [part-1 part-2]]))
 
 (def sample [
   "position=< 9,  1> velocity=< 0,  2>"
@@ -61,3 +61,8 @@
   (is (= sample-res (part-1 sample)))
   (with-open [rdr (clojure.java.io/reader "test/input/10.txt")]
     (is (= input-res (part-1 (line-seq rdr))))))
+
+(deftest test-part-2
+  (is (= 3 (part-2 sample)))
+  (with-open [rdr (clojure.java.io/reader "test/input/10.txt")]
+    (is (= 10076 (part-2 (line-seq rdr))))))

@@ -11,28 +11,28 @@
 
 (defn step [l] (update l :pos #(vec+ % (:vel l))))
 
+(defn bounds [ps] [
+  (apply min (map first ps))
+  (apply min (map second ps))
+  (apply max (map first ps))
+  (apply max (map second ps))])
+
 (defn max-area [ls]
   (let [ps (map :pos ls)
-        min-x (apply min (map first ps))
-        min-y (apply min (map second ps))
-        max-x (apply max (map first ps))
-        max-y (apply max (map second ps))]
+        [min-x min-y max-x max-y] (bounds ps)]
     (* (- max-y min-y) (- max-x min-x))))
 
 (defn view [ls]
   (let [ps (set (map :pos ls))
-        min-x (apply min (map first ps))
-        min-y (apply min (map second ps))
-        max-x (apply max (map first ps))
-        max-y (apply max (map second ps))
-        ]
+        [min-x min-y max-x max-y] (bounds ps)]
   (mapv (fn [y] (apply str (map #(if (contains? ps [% y]) \. \ ) (range min-x (inc max-x))))) (range min-y (inc max-y)))))
   
-(defn part-1 [lines]
+(defn solve [lines]
   (let [init (mapv parse lines)
         skies (iterate #(mapv step %) init)
-        sky-areas (map #(vector % (max-area %)) skies)
-        ]
-    (view
-    (first (map ffirst (filter (fn [[[_ a0] [_ a1]]] (< a0 a1)) (partition 2 1 sky-areas)))))))
+        numbered-sky-areas (map #(vector %1 %2 (max-area %2)) (range) skies)]
+    (ffirst (filter (fn [[[_ _ a0] [_ _ a1]]] (< a0 a1)) (partition 2 1 numbered-sky-areas)))))
+
+(def part-1 #(view (second (solve %))))
+(def part-2 #(first (solve %)))
  
