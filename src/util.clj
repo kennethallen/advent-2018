@@ -7,4 +7,4 @@
     seq))
 
 (defn materialize [f xs]
-  (into {} (map (fn [x] [x (f x)]) xs)))
+  (zipmap xs (map f xs)))

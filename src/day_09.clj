@@ -38,8 +38,7 @@
         ls (long-array (inc last-marble))
         rs (long-array (inc last-marble))
         cur (atom 0)]
-    (aset-long ls 0 0)
-    (aset-long rs 0 0)
+    ; ls[0],rs[0] initialized to 0,0
     (doseq [new (range 1 (inc last-marble))]
       (if (zero? (mod new 23))
         (let [player (mod new players)
