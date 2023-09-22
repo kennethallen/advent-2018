@@ -1,6 +1,6 @@
 (ns day-09)
 
-(defn pl [s] (Long/parseLong s))
+(def pl #(Long/parseLong %))
 (defn parse [l]
   (let [[_ players last-marble] (re-matches #"(\d+) players; last marble is worth (\d+) points" l)]
     [(pl players) (pl last-marble)]))

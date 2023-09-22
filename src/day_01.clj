@@ -1,10 +1,10 @@
 (ns day-01)
 
-(defn parse [l] (Long/parseLong l))
+(def pl #(Long/parseLong %))
 
 (defn part-1 [lines]
   (->> lines
-    (map parse)
+    (map pl)
     (reduce +)))
 
 (defn part-2' [changes total history]
@@ -16,6 +16,6 @@
 
 (defn part-2 [lines]
   (part-2'
-    (cycle (map parse lines))
+    (cycle (map pl lines))
     0
     #{}))

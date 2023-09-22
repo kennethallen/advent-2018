@@ -4,7 +4,7 @@
 
 (defrecord Claim [id pos dim])
 
-(defn pl [s] (Long/parseLong s))
+(def pl #(Long/parseLong %))
 (defn parse [l]
   (let [[_ id px py dx dy] (re-matches #"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)" l)]
     (Claim. (pl id) [(pl px) (pl py)] [(pl dx) (pl dy)])))

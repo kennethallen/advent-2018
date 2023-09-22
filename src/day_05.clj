@@ -16,12 +16,12 @@
     (if (= (count polymer) (count new))
       new
       (recur new))))
-(defn part-1 [polymer] (count (max-collapse (apply vector polymer))))
+(defn part-1 [polymer] (count (max-collapse (vec polymer))))
 
 (defn part-2 [polymer]
-  (let [base (max-collapse (apply vector polymer))
+  (let [base (max-collapse (vec polymer))
         units (set (map #(Character/toUpperCase %) base))]
     (apply min (map
       (fn [u]
-        (count (max-collapse (apply vector (filter #(not= u (Character/toUpperCase %)) base)))))
+        (count (max-collapse (filterv #(not= u (Character/toUpperCase %)) base))))
       units))))

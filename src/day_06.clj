@@ -2,7 +2,7 @@
   (:require [util :refer [counter]]
             [clojure.math.combinatorics :refer [cartesian-product]]))
 
-(defn pl [s] (Long/parseLong s))
+(def pl #(Long/parseLong %))
 (defn parse [l]
   (let [[_ x y] (re-matches #"(\d+), (\d+)" l)]
     [(pl x) (pl y)]))
@@ -22,7 +22,7 @@
     (map vector (range) coords))))
 
 (defn part-1 [lines]
-  (let [coords (apply vector (map parse lines))
+  (let [coords (mapv parse lines)
         min-x (apply min (map first coords))
         min-y (apply min (map second coords))
         max-x (apply max (map first coords))
@@ -39,7 +39,7 @@
     (apply max (vals counts'))))
 
 (defn part-2 [lines limit]
-  (let [coords (apply vector (map parse lines))
+  (let [coords (mapv parse lines)
         min-x (apply min (map first coords))
         min-y (apply min (map second coords))
         max-x (apply max (map first coords))
