@@ -35,7 +35,29 @@
   "position=<14,  7> velocity=<-2,  0>"
   "position=<-3,  6> velocity=< 2, -1>"])
 
+(def sample-res [
+  ".   .  ..."
+  ".   .   . "
+  ".   .   . "
+  ".....   . "
+  ".   .   . "
+  ".   .   . "
+  ".   .   . "
+  ".   .  ..."])
+
+(def input-res [
+  ".....   .....    ....   ......    ..    ......  .....   ..... "
+  ".    .  .    .  .    .       .   .  .   .       .    .  .    ."
+  ".    .  .    .  .            .  .    .  .       .    .  .    ."
+  ".    .  .    .  .           .   .    .  .       .    .  .    ."
+  ".....   .....   .          .    .    .  .....   .....   ..... "
+  ".  .    .    .  .         .     ......  .       .       .     "
+  ".   .   .    .  .        .      .    .  .       .       .     "
+  ".   .   .    .  .       .       .    .  .       .       .     "
+  ".    .  .    .  .    .  .       .    .  .       .       .     "
+  ".    .  .....    ....   ......  .    .  ......  .       .     "])
+
 (deftest test-part-1
-  (is (= "HI" (part-1 sample)))
+  (is (= sample-res (part-1 sample)))
   (with-open [rdr (clojure.java.io/reader "test/input/10.txt")]
-    (is (= 436720 (part-1 (line-seq rdr))))))
+    (is (= input-res (part-1 (line-seq rdr))))))
