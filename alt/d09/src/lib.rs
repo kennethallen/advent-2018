@@ -1,7 +1,7 @@
 #[derive(Clone, Copy)]
 struct Slot { l: usize, r: usize }
 
-fn solve(players: usize, last_marble: usize) -> usize {
+pub fn solve(players: usize, last_marble: usize) -> usize {
     let mut scores = vec![0; players];
     let mut slots = Vec::with_capacity(last_marble + 1);
     unsafe {
@@ -32,19 +32,27 @@ fn solve(players: usize, last_marble: usize) -> usize {
     scores.into_iter().max().unwrap()
 }
 
-fn main() {
-    for (players, last_marble, expected) in [
-        //(9, 25, 32),
-        //(10, 1618, 8317),
-        //(13, 7999, 146373),
-        //(17, 1104, 2764),
-        //(21, 6111, 54718),
-        //(30, 5807, 37305),
-        //(416, 71617, 436720),
-        (416, 7161700, 3527845091),
-    ] {
-        let res = solve(players, last_marble);
-        let correct = expected == res;
-        println!("{correct} {expected} {res}");
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part1() {
+        for (players, last_marble, expected) in [
+            (9, 25, 32),
+            (10, 1618, 8317),
+            (13, 7999, 146373),
+            (17, 1104, 2764),
+            (21, 6111, 54718),
+            (30, 5807, 37305),
+            (416, 71617, 436720),
+        ] {
+            assert_eq!(expected, solve(players, last_marble));
+        }
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(3527845091, solve(416, 7161700));
     }
 }
