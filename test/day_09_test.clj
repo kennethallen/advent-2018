@@ -2,6 +2,8 @@
   (:require [clojure.test :refer :all]
             [day-09 :refer [part-1 part-2]]))
 
+(def sample "416 players; last marble is worth 71617 points")
+
 (deftest test-part-1
   (are [a b] (= b (part-1 a))
     "9 players; last marble is worth 25 points" 32
@@ -9,10 +11,8 @@
     "13 players; last marble is worth 7999 points" 146373
     "17 players; last marble is worth 1104 points" 2764
     "21 players; last marble is worth 6111 points" 54718
-    "30 players; last marble is worth 5807 points" 37305)
-  (with-open [rdr (clojure.java.io/reader "test/input/09.txt")]
-    (is (= 436720 (part-1 (first (line-seq rdr)))))))
+    "30 players; last marble is worth 5807 points" 37305
+    sample 436720))
 
 (deftest test-part-2
-  (with-open [rdr (clojure.java.io/reader "test/input/09.txt")]
-    (is (= 3527845091 (part-2 (first (line-seq rdr)))))))
+  (is (= 3527845091 (part-2 sample))))
