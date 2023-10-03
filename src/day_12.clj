@@ -16,7 +16,7 @@
   (let [[_ init] (re-matches #"initial state: ([#\.]*)" (first lines))
         init (normalize 0 (plant-idxs init))
         rules (map #(re-matches #"([#\.]{5}) => ([#\.])" %) (nnext lines))
-        passes (dense-int-set (map parse-spec (map second (filter #(= "#" (get % 2)) rules))))]
+        passes (dense-int-set (map parse-spec (map second (filter #(= "#" (% 2)) rules))))]
     (assert (not (contains? passes 2r00000)))
     [init passes]))
 
@@ -33,8 +33,8 @@
 
 (defn solve' [gens states passes]
   (let [[next-base next-state] (step (last gens) passes)]
-    (if-some [match-idx (get states next-state)]
-      (conj (split-at' match-idx gens) (- next-base (first (get gens match-idx))))
+    (if-some [match-idx (states next-state)]
+      (conj (split-at' match-idx gens) (- next-base (first (gens match-idx))))
       (recur (conj gens [next-base next-state]) (assoc states next-state (count gens)) passes))))
 (defn solve [lines gen-idx]
   (let [[init passes] (parse lines)
@@ -43,7 +43,7 @@
       (+ (* (count state) base) (reduce + state))
       (let [gen-idx-after-prefix (- gen-idx (count prefix))
             cycle-count (quot gen-idx-after-prefix (count cycle))
-            [base state] (get cycle (mod gen-idx-after-prefix (count cycle)))]
+            [base state] (cycle (mod gen-idx-after-prefix (count cycle)))]
         (+ (* (count state) (+ base (* cycle-count cycle-shift))) (reduce + state))))))
 
 (def part-1 #(solve % 20))

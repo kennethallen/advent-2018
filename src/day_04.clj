@@ -14,7 +14,7 @@
         :else (Long/parseLong id)))))
 
 (defn guard-minute-sleeps [records]
-  (get
+  (
     (reduce
       (fn [[guard asleep-since data] rec]
         (cond

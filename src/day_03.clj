@@ -12,8 +12,8 @@
 (defn overlap [cs]
   (apply cartesian-product (map
     (fn [i] (range
-      (apply max (map #(get (:pos %) i) cs))
-      (apply min (map #(+ (get (:pos %) i) (get (:dim %) i)) cs))))
+      (apply max (map #((:pos %) i) cs))
+      (apply min (map #(+ ((:pos %) i) ((:dim %) i)) cs))))
     (range 2))))
 
 (defn part-1 [lines]
