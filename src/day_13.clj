@@ -24,15 +24,19 @@
             :else (throw (Exception. (format "Invalid dir/track combo: %s %s" dir track))))]
     [((move dir) coord) [dir turn]]))
 
-(defn solve [lines to-move moved]
+(defn solve' [lines to-move moved clear-crashes]
   (if-some [[coord state] (first to-move)]
     (let [[coord' state'] (step lines coord state)]
       (if (or (contains? to-move coord') (contains? moved coord'))
-        coord'
-        (recur lines (dissoc to-move coord) (assoc moved coord' state'))))
-    (recur lines moved (sorted-map))))
+        (if clear-crashes
+          (recur lines (dissoc to-move coord coord') (dissoc moved coord') clear-crashes)
+          coord')
+        (recur lines (dissoc to-move coord) (assoc moved coord' state') clear-crashes)))
+    (if (and clear-crashes (= 1 (count moved)))
+      (ffirst moved)
+      (recur lines moved (sorted-map) clear-crashes))))
 
-(defn part-1 [lines]
+(defn solve [lines clear-crashes]
   (let [lines (vec lines)
         init-carts
           (for [y (range (count lines))
@@ -41,4 +45,7 @@
                 :let [cart (get row x)]
                 :when (contains? carts cart)]
             [[y x] [(carts cart) init-turn]])]
-    (vec (reverse (solve lines (into (sorted-map) init-carts) (sorted-map))))))
+    (vec (reverse (solve' lines (into (sorted-map) init-carts) (sorted-map) clear-crashes)))))
+
+(def part-1 #(solve % false))
+(def part-2 #(solve % true))
