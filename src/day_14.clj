@@ -6,16 +6,20 @@
     (cons (mod n 10) (digits-rev (quot n 10)))))
 (def digits #(reverse (digits-rev %)))
 
-(defn part-1 [num-recipes]
-  (let [state
-          (loop [state [3 7]
-                 elves [0 1]]
-            (if (>= (count state) (+ 10 num-recipes))
-              state
-              (let [curs (map state elves)
-                    state (into state (digits (reduce + curs)))]
-                (recur state (map #(mod (+ %1 1 %2) (count state)) elves curs)))))]
-    (reduce
-      #(+ %2 (* 10 %1))
-      0
-      (take 10 (drop num-recipes state)))))
+(defn solve
+  ([] (concat [3 7] (solve [3 7] [0 1])))
+  ([state elves] (lazy-seq
+    (let [curs (map state elves)
+          news (digits (reduce + curs))
+          state (into state news)]
+      (concat news (solve state (map #(mod (+ %1 1 %2) (count state)) elves curs)))))))
+
+(defn from-digits [ds] (reduce #(+ %2 (* 10 %1)) 0 ds))
+
+(def part-1 #(from-digits (take 10 (drop % (solve)))))
+
+(defn part-2 [target]
+  (count
+    (take-while
+      #(not= % target)
+      (partition (count target) 1 (solve)))))
