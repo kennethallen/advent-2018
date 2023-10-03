@@ -14,7 +14,7 @@
         [dir turn]
           (cond
             (or
-              (contains? carts track)
+              (carts track)
               (and (= track \|) (odd? dir))
               (and (= track \-) (even? dir)))
               [dir turn]
@@ -27,7 +27,7 @@
 (defn solve' [lines to-move moved clear-crashes]
   (if-some [[coord state] (first to-move)]
     (let [[coord' state'] (step lines coord state)]
-      (if (or (contains? to-move coord') (contains? moved coord'))
+      (if (or (to-move coord') (moved coord'))
         (if clear-crashes
           (recur lines (dissoc to-move coord coord') (dissoc moved coord') clear-crashes)
           coord')
@@ -43,7 +43,7 @@
                 :let [row (get lines y)]
                 x (range (count row))
                 :let [cart (get row x)]
-                :when (contains? carts cart)]
+                :when (carts cart)]
             [[y x] [(carts cart) init-turn]])]
     (vec (reverse (solve' lines (into (sorted-map) init-carts) (sorted-map) clear-crashes)))))
 

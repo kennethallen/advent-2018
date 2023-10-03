@@ -25,7 +25,7 @@
 (defn view [ls]
   (let [ps (set (map :pos ls))
         [min-x min-y max-x max-y] (bounds ps)]
-  (mapv (fn [y] (apply str (map #(if (contains? ps [% y]) \. \ ) (range min-x (inc max-x))))) (range min-y (inc max-y)))))
+  (mapv (fn [y] (apply str (map #(if (ps [% y]) \. \ ) (range min-x (inc max-x))))) (range min-y (inc max-y)))))
   
 (defn solve [lines]
   (let [init (mapv parse lines)

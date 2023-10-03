@@ -10,7 +10,7 @@
 (defn part-2' [changes total history]
   (let [history (conj history total)
         total (+ total (first changes))]
-    (if (contains? history total)
+    (if (history total)
       total
       (recur (rest changes) total history))))
 

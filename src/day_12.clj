@@ -17,7 +17,7 @@
         init (normalize 0 (plant-idxs init))
         rules (map #(re-matches #"([#\.]{5}) => ([#\.])" %) (nnext lines))
         passes (dense-int-set (map parse-spec (map second (filter #(= "#" (% 2)) rules))))]
-    (assert (not (contains? passes 2r00000)))
+    (assert (not (passes 2r00000)))
     [init passes]))
 
 (defn step [[base state] passes]
@@ -26,7 +26,7 @@
     (normalize
       base
       (filter
-        (fn [n] (contains? passes (reduce bit-set 0 (filter #(contains? state (+ % n -2)) (range 5)))))
+        (fn [n] (passes (reduce bit-set 0 (filter #(state (+ % n -2)) (range 5)))))
         (range (- (apply min state) 2) (+ (apply max state) 2))))))
 
 (defn split-at' [i v] [(subvec v 0 i) (subvec v i)])
