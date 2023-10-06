@@ -54,7 +54,7 @@
       (println "finishing" round)
       (debug-print 7 7 wall? units)))
   (if-some [pos (first queue)]
-    (let [queue (disj queue pos)]
+    (let [queue (rest queue)]
       (if-some [hp (units pos)]
         (if-some [targets (keys (filter #(enemy? hp (val %)) units))]
           (let [avail? #(or (= pos %) (not (or (wall? %) (units %))))
@@ -69,28 +69,26 @@
                           min-dist-dests (filter #(= min-dest-dist (first (dists %))) reachable-dests)
                           ;_ (println "Considering move to" min-dist-dests "distance" min-dest-dist)
                           dest (first (sort min-dist-dests))
-                          units (dissoc units pos) ; optimization: no changes to units if pos'=pos
-                          pos (first (take-last 2 (path-back dists dest)))
-                          units (assoc units pos hp)]
-                      [pos units])
+                          pos' (first (take-last 2 (path-back dists dest)))]
+                      [pos' (if (= pos pos') units (assoc (dissoc units pos) pos' hp))])
                     [pos units])
                 units
-                  (if-some [[victim v-hp] (first (sort-by (fn [[victim v-hp]] [(abs v-hp) victim]) 
-                              (for [victim (adjs pos)
-                                    :let [v-hp (units victim)]
-                                    :when v-hp
-                                    :when (enemy? hp v-hp)]
-                                [victim v-hp])))]
-                    ;(do (println "Attacking" victim)
+                  (if-some [[victim v-hp]
+                              (first (sort-by
+                                (fn [[victim v-hp]] [(abs v-hp) victim]) 
+                                (for [victim (adjs pos)
+                                      :let [v-hp (units victim)]
+                                      :when v-hp
+                                      :when (enemy? hp v-hp)]
+                                  [victim v-hp])))]
                     (if-some [v-hp (wound v-hp)]
                       (assoc units victim v-hp)
                       (dissoc units victim))
-                    ;)
                     units)]
             (recur wall? round queue units))
-          [round (abs (reduce + (vals units))) units]);(* round (abs (reduce + (vals units)))))
+          [round units])
         (recur wall? round queue units)))
-    (recur wall? (inc round) (apply sorted-set (keys units)) units)))
+    (recur wall? (inc round) (keys units) units)))
 
 (defn part-1 [lines]
   (let [lines (vec lines)
@@ -101,12 +99,12 @@
                   :let [hp (init-hp cell)]
                   :when hp]
               [[y x] hp]))
-        [round total-hp units]
+        [round units]
           (solve
             #(= \# (get-in lines %))
             0
-            (apply sorted-set (keys units))
+            (keys units)
             units)]
     (debug-print (count lines) (count (first lines)) #(= \# (get-in lines %)) units)
     (println)
-    (* round total-hp)))
+    (* round (abs (reduce + (vals units))))))

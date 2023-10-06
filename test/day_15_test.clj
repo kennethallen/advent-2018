@@ -12,10 +12,10 @@
     (djikstra
       [0 0]
       {
-        [0 0] [[1 0] [0 1]]
+        [0 0] [[0 1] [1 0]]
         [0 1] [[0 0] [1 1]]
         [1 0] [[0 0] [1 1]]
-        [1 1] [[1 0] [0 1]]})))
+        [1 1] [[0 1] [1 0]]})))
   (with-open [rdr (clojure.java.io/reader "test/input/15f.txt")]
     (let [lines (vec (line-seq rdr))]
       (is (=
