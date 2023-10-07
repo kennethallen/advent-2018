@@ -18,6 +18,26 @@
             [n prio])))
       dists)))
 
+(defn greedy-search [origin adjs-fn accept?]
+  (loop [dists {}
+         q (priority-map origin [0 nil])]
+    (if-some [[pos [dist pred]] (peek q)]
+      (let [dists (assoc dists pos [dist pred])]
+        (if (accept? pos)
+          [pos dists]
+          (recur
+            dists
+            (into
+              (pop q)
+              (for [n (adjs-fn pos)
+                    :when (not (dists n))
+                    :let [prio [(inc dist) pos]]
+                    :when (if-some [old-prio (q n)]
+                      (< (compare prio old-prio) 0)
+                      true)]
+                [n prio])))))
+      nil)))
+
 (defn path-back [dists start]
   (if start (cons start (path-back dists (second (dists start))))))
 
