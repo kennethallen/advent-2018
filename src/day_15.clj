@@ -1,45 +1,32 @@
 (ns day-15
   (:require [clojure.data.priority-map :refer [priority-map]]))
 
-(defn djikstra [origin adjs-fn]
-  (loop [dists {}
-         q (priority-map origin [0 nil])]
-    (if-some [[pos [dist pred]] (peek q)]
-      (recur
-        (assoc dists pos [dist pred])
-        (into
-          (pop q)
-          (for [n (adjs-fn pos)
-                :when (not (dists n))
-                :let [prio [(inc dist) pos]]
-                :when (if-some [old-prio (q n)]
-                  (< (compare prio old-prio) 0)
-                  true)]
-            [n prio])))
-      dists)))
-
 (defn greedy-search [origin adjs-fn accept?]
-  (loop [dists {}
-         q (priority-map origin [0 nil])]
-    (if-some [[pos [dist pred]] (peek q)]
-      (let [dists (assoc dists pos [dist pred])]
+  (loop [dists (transient {})
+         q (priority-map origin [0 origin nil])]
+    (if-some [[pos [dist _ pred]] (peek q)]
+      (let [dists (assoc! dists pos [dist pred])]
         (if (accept? pos)
-          [pos dists]
+          [pos (persistent! dists)]
           (recur
             dists
             (into
               (pop q)
               (for [n (adjs-fn pos)
                     :when (not (dists n))
-                    :let [prio [(inc dist) pos]]
+                    :let [prio [(inc dist) n pos]]
                     :when (if-some [old-prio (q n)]
                       (< (compare prio old-prio) 0)
                       true)]
                 [n prio])))))
-      nil)))
+      [nil (persistent! dists)])))
 
 (defn path-back [dists start]
-  (if start (cons start (path-back dists (second (dists start))))))
+  (loop [path (transient [])
+         cur start]
+    (if cur
+      (recur (conj! path cur) (second (dists cur)))
+      (persistent! path))))
 
 (def init-hp {\G -200 \E 200})
 (def dmg 3)
@@ -54,11 +41,12 @@
   (> % dmg) (- % dmg)
   (> (- %) dmg) (+ % dmg)))
 
-(defn debug-print [height width wall? units]
+(defn debug-print-dests [height width wall? units dests]
   (dotimes [y height]
     (apply println
       (apply str
         (for [x (range width)] (cond
+          (dests [y x]) (first (dests [y x]))
           (= (units [y x]) -200) \G
           (= (units [y x]) 200) \E
           (< (units [y x] 0) 0) \g
@@ -66,54 +54,44 @@
           (wall? [y x]) \#
           :else \.)))
       (filter #(= y (first (key %))) units))))
+(def debug-print #(debug-print-dests %1 %2 %3 %4 {}))
 
 (defn solve [wall? round queue units]
-  (assert (< round 200));debug
-  (if (and (empty? queue) (<= 23 (inc round) 28))
-    (do
-      (println "finishing" round)
-      (debug-print 7 7 wall? units)))
   (if-some [pos (first queue)]
-    (let [queue (rest queue)]
-      (if-some [hp (units pos)]
-        (if-some [targets (keys (filter #(enemy? hp (val %)) units))]
-          (let [avail? #(or (= pos %) (not (or (wall? %) (units %))))
-                avail-adjs #(filter avail? (adjs %))
-                dists (djikstra pos avail-adjs)
-                [pos units]
-                  (if-some [reachable-dests (seq (filter dists (set (mapcat avail-adjs targets))))]
-                    (let [;_ (println "Targets" targets)
-                          ;_ (println "Dests" (set (mapcat avail-adjs targets)))
-                          ;_ (println "Reachables" reachable-dests)
-                          min-dest-dist (apply min (map first (map dists reachable-dests)))
-                          min-dist-dests (filter #(= min-dest-dist (first (dists %))) reachable-dests)
-                          ;_ (println "Considering move to" min-dist-dests "distance" min-dest-dist)
-                          dest (first (sort min-dist-dests))
-                          pos' (first (take-last 2 (path-back dists dest)))]
-                      [pos' (if (= pos pos') units (assoc (dissoc units pos) pos' hp))])
-                    [pos units])
-                units
-                  (if-some [[victim v-hp]
-                              (first (sort-by
-                                (fn [[victim v-hp]] [(abs v-hp) victim]) 
-                                (for [victim (adjs pos)
-                                      :let [v-hp (units victim)]
-                                      :when v-hp
-                                      :when (enemy? hp v-hp)]
-                                  [victim v-hp])))]
-                    (if-some [v-hp (wound v-hp)]
-                      (assoc units victim v-hp)
-                      (dissoc units victim))
-                    units)]
-            (recur wall? round queue units))
-          [round units])
-        (recur wall? round queue units)))
-    (recur wall? (inc round) (keys units) units)))
+    (let [queue (disj queue pos)
+          hp (units pos)]
+      (if-some [targets (keys (filter #(enemy? hp (val %)) units))]
+        (let [avail? #(or (= pos %) (not (or (wall? %) (units %))))
+              avail-adjs #(filter avail? (adjs %))
+              dests (set (mapcat avail-adjs targets))
+              [dest dists] (greedy-search pos avail-adjs dests)
+              [pos units]
+                (if dest
+                  (let [pos' (first (take-last 2 (path-back dists dest)))]
+                    [pos' (if (= pos pos') units (assoc (dissoc units pos) pos' hp))])
+                  [pos units])
+              [units queue]
+                (if-some [[victim v-hp]
+                            (first (sort-by
+                              (fn [[victim v-hp]] [(abs v-hp) victim]) 
+                              (for [victim (adjs pos)
+                                    :let [v-hp (units victim)]
+                                    :when v-hp
+                                    :when (enemy? hp v-hp)]
+                                [victim v-hp])))]
+                  (if-some [v-hp (wound v-hp)]
+                    [(assoc units victim v-hp) queue]
+                    [(dissoc units victim) (disj queue victim)])
+                  [units queue])]
+          (recur wall? round queue units))
+        [round units]))
+    (recur wall? (inc round) (apply sorted-set (keys units)) units)))
 
 (defn part-1 [lines]
   (let [lines (vec lines)
         units
-          (into (sorted-map)
+          (into
+            {}
             (for [[y row] (map-indexed vector lines)
                   [x cell] (map-indexed vector row)
                   :let [hp (init-hp cell)]
@@ -123,8 +101,6 @@
           (solve
             #(= \# (get-in lines %))
             0
-            (keys units)
+            (apply sorted-set (keys units))
             units)]
-    (debug-print (count lines) (count (first lines)) #(= \# (get-in lines %)) units)
-    (println)
     (* round (abs (reduce + (vals units))))))
