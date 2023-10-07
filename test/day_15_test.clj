@@ -1,8 +1,8 @@
 (ns day-15-test
   (:require [clojure.test :refer :all]
-            [day-15 :refer [adjs greedy-search part-1]]))
+            [day-15 :refer [adjs greedy-search part-1 part-2]]))
 
-(deftest test-djikstra
+(deftest test-greedy-search
   (is (=
     [[1 1] {
       [0 0] [0 nil]
@@ -16,7 +16,7 @@
         [0 1] [[0 0] [1 1]]
         [1 0] [[0 0] [1 1]]
         [1 1] [[0 1] [1 0]]}
-      #(= [1 1] %))))
+      #{[1 1]})))
   (with-open [rdr (clojure.java.io/reader "test/input/15f.txt")]
     (let [lines (vec (line-seq rdr))
           dests (set
@@ -73,6 +73,13 @@
     "d" 27755
     "e" 28944
     "f" 18740
-    "" 189000
-    )
-)
+    "" 189000))
+
+(deftest test-part-2
+  (are [q a] (= a (with-open [rdr (clojure.java.io/reader (format "test/input/15%s.txt" q))] (part-2 (line-seq rdr))))
+    "a" 4988
+    "c" 31284
+    "d" 3478
+    "e" 6474
+    "f" 1140
+    "" 38512))
